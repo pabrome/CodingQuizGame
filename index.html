@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <title>Coding Quiz</title>
+</head>
+<body>
+    <div class="navbar bg-light">
+        <h1>Coding Quiz</h1>
+    </div>
+    <div class="row">
+        <div id="timeRemaining" class="col-6 border">
+            Time Remaining
+        </div>
+        <div class="col-6 border">
+            High Scores
+        </div>
+    </div>
+        <div class="container border bg-light" id="contentBox">
+    </div>
+
+    <script type="text/javascript">
+
+        var secondsPerQuestion = 15
+        var timeElapsed = 0
+        var timeRemaining
+        var questions = [
+            {
+                title: "Commonly used data types DO NOT include:",
+                choices: ["strings", "booleans", "alerts", "numbers"],
+                answer: "alerts"
+            },
+            {
+                title: "The condition in an if / else statement is enclosed within ____.",
+                choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
+                answer: "parentheses"
+            },
+        ]   
+        
+        $(document).ready(function() {
+            //Starting Screen
+            var startText = $("<p>")
+            startText.text("Welcome to the countries quiz! See how well you know the world's culture by answering the following 20 questions. Good luck!")
+            startText.appendTo("#contentBox")
+            var startButton = $("<button>")
+            startButton.addClass("btn btn-primary")
+            startButton.text("Start Quiz")
+            startButton.appendTo("#contentBox")
+
+            //Timer Function
+            var timeGiven = questions.length * secondsPerQuestion
+
+            function updateTimer(){
+                timeRemaining = timeGiven - timeElapsed
+                $("#timeRemaining").text("Time Remaining: " + timeRemaining)
+            }
+
+            function initiateTimer(){
+                var x = setInterval(function() {
+                    timeElapsed++
+                    updateTimer()
+                    if (timeRemaining == 0) {
+                        clearInterval;
+                        $("#timeRemaining").text("Expired");
+                    }
+                },1000)
+            }
+
+            //Creation of quiz contents
+            function createAnswerOption(answerText){
+                var answerOption = $("<div>")
+            }
+
+            function displayQuestion(){
+                for (var i = 1; i < questions[i].choices.length; i++){
+                    
+                }
+            }
+
+            function startQuiz(){
+                initiateTimer()
+                displayQuestion()
+
+            }
+        })
+    </script>
+
+    
+</body>
+</html>
