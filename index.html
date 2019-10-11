@@ -14,14 +14,15 @@
         <h1>Coding Quiz</h1>
     </div>
     <div class="row">
-        <div id="timeRemaining" class="col-6 border">
-            Time Remaining
+        <div id="timeRemaining" class="col-6">
+            Time Remaining:
         </div>
-        <div class="col-6 border">
+        <div class="col-6">
             High Scores
         </div>
     </div>
-        <div class="container border bg-light" id="contentBox">
+        <div class="container bg-light" id="contentBox">
+        </div>
     </div>
 
     <script type="text/javascript">
@@ -29,6 +30,7 @@
         var secondsPerQuestion = 15
         var timeElapsed = 0
         var timeRemaining
+        var timePenalty = 0
         var questions = [
             {
                 title: "Commonly used data types DO NOT include:",
@@ -40,56 +42,170 @@
                 choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
                 answer: "parentheses"
             },
+            {
+                title: "Another question.",
+                choices: ["A1", "A2", "A3", "A4"],
+                answer: "A5"
+            },
         ]   
-        
+        var x = 0
+        var checked
+        var incorrectAnswers = 0
+        var interval
+        var savedScores
+
+        //Starting Screen
         $(document).ready(function() {
-            //Starting Screen
-            var startText = $("<p>")
-            startText.text("Welcome to the countries quiz! See how well you know the world's culture by answering the following 20 questions. Good luck!")
-            startText.appendTo("#contentBox")
-            var startButton = $("<button>")
-            startButton.addClass("btn btn-primary")
-            startButton.text("Start Quiz")
-            startButton.appendTo("#contentBox")
 
-            //Timer Function
-            var timeGiven = questions.length * secondsPerQuestion
+            $("<p>").text("Welcome to the countries quiz! See how well you know the world's culture by answering the following 10 questions. Good luck!").appendTo("#contentBox")
 
-            function updateTimer(){
-                timeRemaining = timeGiven - timeElapsed
-                $("#timeRemaining").text("Time Remaining: " + timeRemaining)
-            }
+            $("<button>").attr({
+                class: "btn btn-primary",
+                id: "startQuiz",
+            }).text("Start Quiz").appendTo("#contentBox")
 
-            function initiateTimer(){
-                var x = setInterval(function() {
-                    timeElapsed++
-                    updateTimer()
-                    if (timeRemaining == 0) {
-                        clearInterval;
-                        $("#timeRemaining").text("Expired");
-                    }
-                },1000)
-            }
-
-            //Creation of quiz contents
-            function createAnswerOption(answerText){
-                var answerOption = $("<div>")
-            }
-
-            function displayQuestion(){
-                for (var i = 1; i < questions[i].choices.length; i++){
-                    
-                }
-            }
-
-            function startQuiz(){
-                initiateTimer()
-                displayQuestion()
-
-            }
+            $("#startQuiz").click(function(){  
+                startQuiz()
+            })
         })
-    </script>
+
+        function startQuiz(){
+            initiateTimer()
+            loadQnA()
+        }
+
+        function emptyContentBox(){
+            $("#contentBox").empty()
+        }
+
+        //Load question and answers
+        function loadQnA(){
+            emptyContentBox()
+            //Load question
+            $("<div>").text(questions[x].title).appendTo("#contentBox")
+            //Load answers
+            $("<form>").appendTo("#contentBox")
+            for (var i = 0; i < questions[x].choices.length; i++){
+                
+                $("<div>").addClass("form-check").appendTo("#contentBox")
+
+                $("<input>").attr({
+                    //MOVE QUESTIONS RIGHT
+                    class: "form-check-input",
+                    id: "answer" + i,
+                    type: "radio",
+                    name: "answer" + 1,
+                    value: i
+                }).appendTo("#contentBox")
+                
+                $("<label>").attr({
+                    class: "form-check-label",
+                    for: "answer" + i
+                }).text(questions[x].choices[i]).appendTo("#contentBox")
+            }
+
+            //Load submit button
+            $("<div>").appendTo("#contentBox")
+            $("<button>").attr({
+                class: "btn btn-primary",
+                id: "submitButton",
+            }).text("Submit").appendTo("#contentBox")
+            //Submit click function
+            $("#submitButton").click(function(){ 
+                //Check if quiz is complete
+                if (x >= questions.length-1){
+                    quizComplete("allquestionsAnswered")
+                }
+                else{
+                    answer = questions[x].choices[$("input:checked").val()]
+                    if (answer !== undefined){
+                        gradeAnswer()
+                        x++
+                        loadQnA()
+                    }
+                    else{
+                        alert("Please select an answer")
+                        loadQnA()
+                    } 
+                }
+            })
+        }
+
+        //Grade Current Answer
+        function gradeAnswer(){
+            if (answer == questions[x].answer){
+                $("<div>").text("Correct!").appendTo("#submitBUtton")
+            }
+            else{
+                incorrectAnswers++
+                $("<div>").text("Incorrect. The right answer was " + questions[x].answer + ".").appendTo("#submitBUtton")
+            }
+        }
+
+        //Quiz Complete
+        function quizComplete(completionMethod){
+            clearInterval(interval);
+            if (completionMethod = "timeExpired"){
+                message = "Time expired!"
+            }
+            else{
+                message = "Quiz complete!"
+            }
+            emptyContentBox()
+
+            questionScore = (questions.length - incorrectAnswers) + "/" + (questions.length)
+            
+            $("<p>").text(message + " Thank you for taking the quiz. Your time score is: " + timeRemaining + ". Your questions score is: " + questionScore).appendTo("#contentBox")
+        
+            $("<input>").attr({
+                type: "text",
+                id: "initials",
+            }).text("Enter your initials").appendTo("#contentBox")
+                
+            $("<button>").attr({
+                class: "btn btn-primary",
+                id: "submitScore",
+            }).text("Submit Score").appendTo("#contentBox")
+
+            $("#submitScore").click(function(){  
+                savedScores = [
+                    {  
+                        initials: $("#initials").val(),
+                        timeScore: timeRemaining,
+                        questionScore: questionScore,
+                    }
+                ]
+                localStorage.setItem("savedScores", JSON.stringify(savedScores))
+            })
+        }
+        
+        //Timer Function
+        var timeGiven = questions.length * secondsPerQuestion
+
+        function updateTimer(){
+            timeRemaining = timeGiven - timeElapsed - timePenalty
+            $("#timeRemaining").text("Time Remaining: " + timeRemaining)
+        }
+
+        function initiateTimer(){
+            updateTimer()
+            interval = setInterval(function() {
+                timeElapsed++
+                timePenalty = incorrectAnswers * 15
+                updateTimer()
+                if (timeRemaining <= 0) {
+                    quizComplete("timeExpired")
+                }
+            },1000)
+        }
+
+        //Create question and answers
+        function createAnswerOption(answerText){
+            var answerOption = $("<div>")
+        }
+
 
     
+    </script>
 </body>
 </html>
