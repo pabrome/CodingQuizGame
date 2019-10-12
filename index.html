@@ -7,18 +7,19 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <title>Coding Quiz</title>
+    <title>Ultimate Quiz</title>
 </head>
 <body>
-    <div class="navbar bg-light">
-        <h1>Coding Quiz</h1>
+    <div class="navbar bg-light d-flex justify-content-center">
+        <h1>Ultimate Quiz</h1>
     </div>
     <div class="row">
         <div id="timeRemaining" class="col-6">
-            Time Remaining:
         </div>
-        <div class="col-6">
-            High Scores
+        <div class="col-6 d-flex justify-content-end" >
+            <button id = "highScores"> 
+                High Scores
+            </button>
         </div>
     </div>
         <div class="container bg-light" id="contentBox">
@@ -33,31 +34,71 @@
         var timePenalty = 0
         var questions = [
             {
-                title: "Commonly used data types DO NOT include:",
-                choices: ["strings", "booleans", "alerts", "numbers"],
-                answer: "alerts"
+                title: "What country invented tacos?",
+                choices: ["Spain", "Mexico", "USA", "Brazil"],
+                answer: "Mexico"
             },
             {
-                title: "The condition in an if / else statement is enclosed within ____.",
-                choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
-                answer: "parentheses"
+                title: "Where did basketball originate from?",
+                choices: ["USA", "Japan", "Canada", "Australia"],
+                answer: "Canada"
             },
             {
-                title: "Another question.",
-                choices: ["A1", "A2", "A3", "A4"],
-                answer: "A5"
+                title: "Mozart was born in which country?",
+                choices: ["Germany", "France", "Austria", "Russia"],
+                answer: "Austria"
             },
+            {
+                title: "Which country is hosting the 2020 Olympics?",
+                choices: ["Russia", "South Africa", "Japan", "Qatar"],
+                answer: "Japan"
+            },
+            {
+                title: "Christopher Columbus discovered:",
+                choices: ["Spain", "China", "Mars", "North America"],
+                answer: "North America"
+            },
+            {
+                title: "Egyptians built the:",
+                choices: ["Empire State Building", "Triangles", "Pyramids", "Squares"],
+                answer: "Pyramids"
+            },
+            {
+                title: "Newton discovered gravity when this fell on his head.",
+                choices: ["Soccer ball", "Apple", "Responsibility", "The new iPhone 11"],
+                answer: "Apple"
+            },
+            {
+                title: "The Trojan Horse was used:",
+                choices: ["as a memes of transportation.", "to invade the ciy of Troy.", "to hack your computer.", "as a contraceptive device."],
+                answer: "to invade the city of Troy"
+            },
+            {
+                title: "The best TV show is:",
+                choices: ["Friends", "The Office", "Breaking Bad", "Modern Family"],
+                answer: "The Office"
+            },
+            {
+                title: "How many gold medals has Michael Phelps won in the Olympic?",
+                choices: ["1", "8", "34", "23"],
+                answer: "23"
+            },
+
         ]   
+
+        var savedScores = []
+        var newScore
         var x = 0
         var checked
         var incorrectAnswers = 0
         var interval
-        var savedScores
+
+        loadStartingScreen()
 
         //Starting Screen
-        $(document).ready(function() {
+        function loadStartingScreen(){
 
-            $("<p>").text("Welcome to the countries quiz! See how well you know the world's culture by answering the following 10 questions. Good luck!").appendTo("#contentBox")
+            $("<p>").text("Welcome to the ultimate quiz! See how well you know the world's culture by answering the following 10 questions. Good luck!").appendTo("#contentBox")
 
             $("<button>").attr({
                 class: "btn btn-primary",
@@ -67,7 +108,7 @@
             $("#startQuiz").click(function(){  
                 startQuiz()
             })
-        })
+        }
 
         function startQuiz(){
             initiateTimer()
@@ -90,8 +131,6 @@
                 $("<div>").addClass("form-check").appendTo("#contentBox")
 
                 $("<input>").attr({
-                    //MOVE QUESTIONS RIGHT
-                    class: "form-check-input",
                     id: "answer" + i,
                     type: "radio",
                     name: "answer" + 1,
@@ -99,8 +138,7 @@
                 }).appendTo("#contentBox")
                 
                 $("<label>").attr({
-                    class: "form-check-label",
-                    for: "answer" + i
+                    class: "pl-2"
                 }).text(questions[x].choices[i]).appendTo("#contentBox")
             }
 
@@ -152,6 +190,7 @@
                 message = "Quiz complete!"
             }
             emptyContentBox()
+            $("#timeRemaining").text("")
 
             questionScore = (questions.length - incorrectAnswers) + "/" + (questions.length)
             
@@ -167,15 +206,23 @@
                 id: "submitScore",
             }).text("Submit Score").appendTo("#contentBox")
 
+            //Submit scores
             $("#submitScore").click(function(){  
-                savedScores = [
-                    {  
+                newScore = [{
                         initials: $("#initials").val(),
                         timeScore: timeRemaining,
-                        questionScore: questionScore,
-                    }
-                ]
+                        questionScore: questionScore
+                        }]
+                savedScores = JSON.parse(localStorage.getItem("savedScores"))
+                if (savedScores == null){
+                    savedScores = newScore
+                }
+                else{
+                    savedScores.push(newScore)
+                }
+                debugger 
                 localStorage.setItem("savedScores", JSON.stringify(savedScores))
+                alert("Score submitted successfully")
             })
         }
         
@@ -199,13 +246,40 @@
             },1000)
         }
 
-        //Create question and answers
-        function createAnswerOption(answerText){
-            var answerOption = $("<div>")
+        //High score page
+        $("#highScores").click(function(){
+            emptyContentBox()
+            //load locally saved scored
+            savedScores = JSON.parse(localStorage.getItem("savedScores"))
+
+            //create high score table
+            $("<table>").addClass("table").appendTo("#contentBox")
+            
+            $("<tbody>").appendTo($("table"))
+            for (i = 0; i < savedScores.length; i++){
+                $("<tr>").attr("id","row" + i).appendTo("tbody")
+                appendRow(savedScores[i].initials)
+                appendRow(savedScores[i].questionScore)
+                appendRow(savedScores[i].timeScore)
+            }
+            
+            //create back button
+            $("<button>").attr({
+                class: "btn btn-primary",
+                id: "backHome",
+            }).text("Back").appendTo("#contentBox")
+
+            //Back button function
+            $("#backHome").click(function(){
+                emptyContentBox()
+                loadStartingScreen()
+            })
+        })
+
+        function appendRow(data){
+            $("<td>").text(data).appendTo($("#row"+i))
         }
 
-
-    
     </script>
 </body>
 </html>
